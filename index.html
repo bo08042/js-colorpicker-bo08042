@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <link rel="stylesheet" href="css/bootstrap.css" />
+        <title>Color Editor</title>
+        <style>
+            body{
+                width: 100vw;
+                height: 100vh;
+                background: linear-gradient(to right, rgb(217, 167, 199), rgb(255, 252, 220));
+            }
+            .col {
+                width: 500px;
+                height: 300px;
+                border: 1px solid #ccc;
+                font-size: 3em;
+                text-align: center;
+                line-height: 300px;
+            }
+            .custom-range{
+                width: 30%;
+            }
+        </style>
+    </head>
+    <body class="d-flex justify-content-center align-items-center">
+        <div class="d-inline-block border border-secondary rounded p-1 bg-white">
+            <div id="box" class="col mb-3 rounded"></div>
+            <div class="d-flex justify-content-center align-items-center mb-2">
+                <input class="btn bg-danger text-white mr-2" type="button" value="R" onclick="chgclr('r')" />
+                <input class="custom-range" type="range" min="0" max="255" id="myRangeR" />
+            </div>
+            <div class="d-flex justify-content-center align-items-center mb-2">
+                <input class="btn bg-success text-white mr-2" type="button" value="G" onclick="chgclr('g')" />
+                <input class="custom-range" type="range" min="0" max="255" id="myRangeG" />
+            </div>
+            <div class="d-flex justify-content-center align-items-center mb-2">
+                <input class="btn bg-primary text-white mr-2" type="button" value="B" onclick="chgclr('b')" />
+                <input class="custom-range" type="range" min="0" max="255" id="myRangeB" />
+            </div>
+            <p class="text-center mt-2">
+                <input class="btn bg-warning text-dark" type="button" value="+" onmousedown="runclr('plus')" onmouseup="clearInterval(run)"/>
+                <input class="btn bg-warning text-dark" type="button" value="-" onmousedown="runclr('minus')" onmouseup="clearInterval(run)"/>
+                <input class="btn bg-dark text-white" type="button" value="?" onmousedown="runclr('rand')" onmouseup="clearInterval(run)"/>
+            </p>
+        </div>
+
+        <script src="js/jquery-3.4.1.min.js"></script>
+        <script src="js/popper.min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+        <script>
+            // 轉換16進位及補0
+            function setstr(str) {
+                str = str.toString(16);
+                return str.length >= 2 ? str : '0' + str;
+            }
+            
+            var bgc = document.getElementById("box");
+            var randR = Math.floor(Math.random() * 256);
+            var randG = Math.floor(Math.random() * 256);
+            var randB = Math.floor(Math.random() * 256);
+
+            if (bgc.style.length == 0) {
+                randRGB = "rgb(" + randR + "," + randG + "," + randB + ")";
+
+                document.getElementById("box").style.backgroundColor = randRGB;
+                document.getElementById("myRangeR").value = randR;
+                document.getElementById("myRangeG").value = randG;
+                document.getElementById("myRangeB").value = randB;
+                document.getElementById("box").style.color = "rgb(" + (255-randR) + "," + (255-randG) + "," + (255-randB) + ")";
+                document.getElementById("box").innerHTML = "#" + setstr(randR) + setstr(randG) + setstr(randB);
+            }
+
+            var rgb = { r: randR, g: randG, b: randB };
+            function chgclr(clr) {
+                do {
+                    newclr = prompt("請輸入0~255", rgb[clr]);
+                } while (!(0 <= newclr && newclr <= 255));
+                rgb[clr] = newclr == null ? rgb[clr] : Number(newclr);
+                color = "rgb(" + rgb.r + "," + rgb.g + "," + rgb.b + ")";
+                document.getElementById("box").style.backgroundColor = color;
+                document.getElementById("myRangeR").value = rgb.r;
+                document.getElementById("myRangeG").value = rgb.g;
+                document.getElementById("myRangeB").value = rgb.b;
+                document.getElementById("box").style.color = "rgb(" + (255-rgb.r) + "," + (255-rgb.g) + "," + (255-rgb.b) + ")";
+                document.getElementById("box").innerHTML = "#" + setstr(rgb.r) + setstr(rgb.g) + setstr(rgb.b);
+            }
+
+            function slider() {
+                rgb.r = Number(document.getElementById("myRangeR").value);
+                rgb.g = Number(document.getElementById("myRangeG").value);
+                rgb.b = Number(document.getElementById("myRangeB").value);
+                color = "rgb(" + rgb.r + "," + rgb.g + "," + rgb.b + ")";
+                bgc.style.backgroundColor = color;
+                document.getElementById("box").style.color = "rgb(" + (255-rgb.r) + "," + (255-rgb.g) + "," + (255-rgb.b) + ")";
+                document.getElementById("box").innerHTML = "#" + setstr(rgb.r) + setstr(rgb.g) + setstr(rgb.b);
+            }
+
+            document.getElementById("myRangeR").addEventListener("input", slider);
+            document.getElementById("myRangeR").addEventListener("onchange", chgclr);
+            document.getElementById("myRangeG").addEventListener("input", slider);
+            document.getElementById("myRangeG").addEventListener("onchange", chgclr);
+            document.getElementById("myRangeB").addEventListener("input", slider);
+            document.getElementById("myRangeB").addEventListener("onchange", chgclr);
+
+            // setinterval 連續觸發
+            function runclr(e){
+                run=setInterval(function(){
+                    switch (e) {
+                        case 'plus':
+                            if(rgb.r<255) rgb.r++;
+                            if(rgb.g<255) rgb.g++;
+                            if(rgb.b<255) rgb.b++;
+                        break;
+                        case 'minus':
+                            if(rgb.r>0) rgb.r--;
+                            if(rgb.g>0) rgb.g--;
+                            if(rgb.b>0) rgb.b--;
+                        break;
+                        case 'rand':
+                            rgb.r = Math.floor((Math.random() * 256));
+                            rgb.g = Math.floor((Math.random() * 256));
+                            rgb.b = Math.floor((Math.random() * 256));
+                        break;
+                    }
+                    color = "rgb(" + rgb.r + "," + rgb.g + "," + rgb.b + ")";
+                    bgc.style.backgroundColor = color;
+
+                    document.getElementById("myRangeR").value = rgb.r;
+                    document.getElementById("myRangeG").value = rgb.g;
+                    document.getElementById("myRangeB").value = rgb.b;
+                    document.getElementById("box").style.color = "rgb(" + (255-rgb.r) + "," + (255-rgb.g) + "," + (255-rgb.b) + ")";
+                    document.getElementById("box").innerHTML = "#" + setstr(rgb.r) + setstr(rgb.g) + setstr(rgb.b);
+                },50)
+            }
+        </script>
+    </body>
+</html>
